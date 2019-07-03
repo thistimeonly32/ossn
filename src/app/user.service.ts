@@ -86,8 +86,8 @@ export class UserService {
     return this._http.get(`${this._url}/user/friends/${userId}`);
   }
 
-  public getMessages(toUserId, fromUserId) {
-    return this._http.get(`${this._url}/user/messages/${toUserId}/${fromUserId}`);
+  public getMessages(toUserId, fromUserId, currentPage, timeStr) {
+    return this._http.get(`${this._url}/user/messages/${toUserId}/${fromUserId}/${currentPage}/${timeStr}`);
   }
 
   public saveMessage(data) {
