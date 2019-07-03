@@ -69,7 +69,8 @@
                   &nbsp;
                   <i *ngIf="peer" data-toggle="tooltip" title="Start Video Call" class="fa fa-video-camera"
                     data-backdrop="static" data-keyboard="false" data-toggle="modal" data-target="#myModal"
-                    (click)="connectVideoChat(friend.userId)" style="cursor: pointer;"></i><span [ngStyle]="{'display': friend?.online ? 'block': 'none'}" id="{{friend.userId}}-online" 
+                    (click)="connectVideoChat(friend.userId)" style="cursor: pointer;"></i><span
+                    [ngStyle]="{'display': friend?.online ? 'block': 'none'}" id="{{friend.userId}}-online"
                     class="badge badge-success badge-pill">&nbsp;</span></h5>
               </div>
             </div>
@@ -78,20 +79,19 @@
         </div>
       </div>
       <div class="mesgs" *ngIf="conn">
-        <div class="msg_history" id="msgHistory">
+        <div class="msg_history" id="msgHistory" infiniteScroll infiniteScrollDistance="2"
+          infiniteScrollThrottle="50" (scrolled)="onScroll()" (scrolledUp)="onUp()" [scrollWindow]="false">
 
-          
-
-         
 
         </div>
         <div class="type_msg">
           <div class="input_msg_write">
             <form [formGroup]="msgForm">
-              <input (keypress)="handleSendButton($event)" id="write_msg" type="text" class="write_msg" formControlName="msg" placeholder="Type a message" />
+              <input (keypress)="handleSendButton($event)" id="write_msg" type="text" class="write_msg"
+                formControlName="msg" placeholder="Type a message" />
             </form>
-            <button id="msg_send_btn" class="msg_send_btn" (click)="sendMessage()" type="button"><i class="fa fa-paper-plane-o"
-                aria-hidden="true"></i></button>
+            <button id="msg_send_btn" class="msg_send_btn" (click)="sendMessage()" type="button"><i
+                class="fa fa-paper-plane-o" aria-hidden="true"></i></button>
           </div>
         </div>
       </div>

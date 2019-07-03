@@ -10,6 +10,7 @@ import {ReactiveFormsModule} from '@angular/forms';
 import { HttpClientModule } from '@angular/common/http';
 import  {CookieService} from 'ngx-cookie-service';
 import { AngularFontAwesomeModule } from 'angular-font-awesome';
+import { InfiniteScrollModule } from 'ngx-infinite-scroll';
 
 @NgModule({
   declarations: [
@@ -23,7 +24,8 @@ import { AngularFontAwesomeModule } from 'angular-font-awesome';
     BrowserModule,
     AppRoutingModule,
     ReactiveFormsModule,
-    HttpClientModule
+    HttpClientModule,
+    InfiniteScrollModule
   ],
   providers: [
     CookieService

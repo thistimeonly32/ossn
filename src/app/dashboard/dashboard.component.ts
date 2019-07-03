@@ -2,6 +2,7 @@ import { Component, OnInit, ViewChild, ElementRef, Renderer, ChangeDetectorRef, 
 import { UserService } from '../user.service';
 import { FormGroup, FormControl } from '@angular/forms';
 import { Router } from '@angular/router';
+import { InfiniteScrollModule } from 'ngx-infinite-scroll';
 // import Peer from 'peer';
 declare const Peer: any;
 declare const $: any;
@@ -171,31 +172,31 @@ export class DashboardComponent implements OnInit {
   }
 
   sendOutgoingMessage(msg) {
-    $('#msgHistory').append(`<div class="out-msg-div" style="text-align: right;
-      margin: 0px 20px 10px 20px;">
-      <div class="out-msg-profile" style="background-color: #36bbe0;
-      color: black;
-      font-size: 13px;
-      font-weight: bold;
-      padding: 4px 10px 4px 15px;
-      border-radius: 20px;
-      margin: 5px 5px 5px 5px;
-      display: inline-block;">
-        You:
-      </div>
-      <div class="out-msg" style="font-size: 13px;
-      background-color: #05728f;
-      padding: 4px 25px 4px 15px;
-      border-radius: 5px;
-      display: inline-block;
-      color: white;">
-        ${msg} </div>
-      </div>`);
+    let message = `<div class="out-msg-div" style="text-align: right;
+    margin: 0px 20px 10px 20px;">
+    <div class="out-msg-profile" style="background-color: #36bbe0;
+    color: black;
+    font-size: 13px;
+    font-weight: bold;
+    padding: 4px 10px 4px 15px;
+    border-radius: 20px;
+    margin: 5px 5px 5px 5px;  
+    display: inline-block;">
+      You:
+    </div>
+    <div class="out-msg" style="font-size: 13px;
+    background-color: #05728f;
+    padding: 4px 25px 4px 15px;
+    border-radius: 5px;
+    display: inline-block;
+    color: white;">
+      ${msg} </div>
+    </div>`
+    $('#msgHistory').append(message);
   }
 
   sendIncomingMessage(msg) {
-
-    $('#msgHistory').append(` <div class="inc-msg-div" style="margin-bottom: 10px;
+    let message = `<div class="inc-msg-div" style="margin-bottom: 10px;
     margin: 0px 20px 10px 20px;">
     <div class="inc-msg-profile" style="background-color: #36bbe0;
     color: black;
@@ -214,7 +215,8 @@ export class DashboardComponent implements OnInit {
     color: black;">
       ${msg}
     </div>
-  </div>`);
+  </div>`;
+    $('#msgHistory').append(message);
   }
 
   saveMessage(msg) {
@@ -360,6 +362,14 @@ export class DashboardComponent implements OnInit {
         ));
       }
     });
+  }
+
+  onScroll() {
+    console.log('scrolled!!');
+  }
+
+  onUp(){
+    console.log('scrolled up!!');
   }
 
 
