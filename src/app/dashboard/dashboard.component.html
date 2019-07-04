@@ -69,7 +69,13 @@
                   &nbsp;
                   <i *ngIf="peer" [ngStyle]="{'display': friend?.online ? 'inline-block': 'none'}" data-toggle="tooltip" title="Start Video Call" class="fa fa-video-camera {{friend.userId}}-online"
                     data-backdrop="static" data-keyboard="false" data-toggle="modal" data-target="#myModal"
-                    (click)="connectVideoChat(friend.userId)" style="cursor: pointer;"></i><span
+                    (click)="connectVideoChat(friend.userId)" style="cursor: pointer;"></i>&nbsp;
+                    
+                    <i *ngIf="peer" [ngStyle]="{'display': friend?.online ? 'inline-block': 'none'}" data-toggle="tooltip" title="Start Audio Call" class="fa fa-phone {{friend.userId}}-online"
+                    data-backdrop="static" data-keyboard="false" data-toggle="modal" data-target="#audioCallModal"
+                    (click)="connectAudioCall(friend.userId)" style="cursor: pointer;"></i>
+                    
+                    <span
                     [ngStyle]="{'display': friend?.online ? 'inline-block': 'none'}" id="{{friend.userId}}-online"
                     class="badge badge-success badge-pill {{friend.userId}}-online">&nbsp;</span></h5>
               </div>
@@ -140,6 +146,35 @@
       </div>
     </div>
   </div>
+
+
+  <!-- The Modal -->
+  <div class="modal fade" id="audioCallModal" #audioCallModal>
+      <div class="modal-dialog modal-xl">
+        <div class="modal-content">
+  
+          <!-- Modal Header -->
+          <div class="modal-header">
+            <h4 class="modal-title">Peer to Peer Voice Call</h4>
+            <button type="button" class="btn btn-danger" data-dismiss="modal"><b>End Call</b></button>
+            <!-- <button type="button" class="close" data-dismiss="modal">&times;</button> -->
+          </div>
+  
+          <!-- Modal body -->
+          <div class="modal-body" style="text-align: center">
+            <div>
+              <audio controls autoplay playsinline></audio>
+            </div>
+          </div>
+  
+          <!-- Modal footer -->
+          <!-- <div class="modal-footer">
+              
+            </div> -->
+  
+        </div>
+      </div>
+    </div>
 
 </div>
 
