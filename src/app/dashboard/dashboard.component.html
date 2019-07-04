@@ -64,14 +64,14 @@
             <div class="chat_people">
               <div class="chat_img"> <img src="https://ptetutorials.com/images/user-profile.png" alt="sunil"> </div>
               <div class="chat_ib">
-                <h5>{{friend.name}} &nbsp;&nbsp;<i *ngIf="peer" data-toggle="tooltip" title="Start Text Chat"
-                    class="fa fa fa-wechat" (click)="connectTextChat(friend.userId)" style="cursor: pointer;"></i>
+                <h5>{{friend.name}} &nbsp;&nbsp;<i *ngIf="peer" [ngStyle]="{'display': friend?.online ? 'inline-block': 'none'}" data-toggle="tooltip" title="Start Text Chat"
+                    class="fa fa fa-wechat {{friend.userId}}-online" (click)="connectTextChat(friend.userId)" style="cursor: pointer;"></i>
                   &nbsp;
-                  <i *ngIf="peer" data-toggle="tooltip" title="Start Video Call" class="fa fa-video-camera"
+                  <i *ngIf="peer" [ngStyle]="{'display': friend?.online ? 'inline-block': 'none'}" data-toggle="tooltip" title="Start Video Call" class="fa fa-video-camera {{friend.userId}}-online"
                     data-backdrop="static" data-keyboard="false" data-toggle="modal" data-target="#myModal"
                     (click)="connectVideoChat(friend.userId)" style="cursor: pointer;"></i><span
-                    [ngStyle]="{'display': friend?.online ? 'block': 'none'}" id="{{friend.userId}}-online"
-                    class="badge badge-success badge-pill">&nbsp;</span></h5>
+                    [ngStyle]="{'display': friend?.online ? 'inline-block': 'none'}" id="{{friend.userId}}-online"
+                    class="badge badge-success badge-pill {{friend.userId}}-online">&nbsp;</span></h5>
               </div>
             </div>
           </div>

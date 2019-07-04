@@ -51,7 +51,7 @@ export class DashboardComponent implements OnInit {
     private router: Router,
     private renderer: Renderer,
     private changeDetectorRef: ChangeDetectorRef
-  ) {}
+  ) { }
 
   ngOnInit() {
     this.userService.checkUser(false);
@@ -91,6 +91,11 @@ export class DashboardComponent implements OnInit {
     this.messagePage.currentPage = 0;
   }
 
+  getCurrentTimeStr(){
+    const date = new Date();
+    return `${("0" + date.getDate()).slice(-2)}-${("0" + (date.getMonth() + 1)).slice(-2)}-${date.getFullYear()} ${("0" + date.getHours()).slice(-2)}:${("0" + date.getMinutes()).slice(-2)}`;
+  }
+
   handleSendButton(evn) {
     if (evn.keyCode == 13) {
       this.sendMessage();
@@ -98,7 +103,7 @@ export class DashboardComponent implements OnInit {
   }
 
   closeCall() {
-    this.localStream.getTracks().forEach(function(track) {
+    this.localStream.getTracks().forEach(function (track) {
       track.stop();
     });
     this.localVideo.nativeElement.srcObject = null;
@@ -118,7 +123,7 @@ export class DashboardComponent implements OnInit {
       this.conn.on("data", data => {
         console.log("message recieved from remote peer", data);
         console.log("p: " + this.conn.peer.replace("user-peer-id-", ""));
-        this.sendIncomingMessage(data, "append");
+        this.sendIncomingMessage(data, this.getCurrentTimeStr(), "append");
         this.updateScroll();
       });
     });
@@ -141,7 +146,7 @@ export class DashboardComponent implements OnInit {
     });
     this.conn.on("data", data => {
       console.log("message recieved from remote peer", data);
-      this.sendIncomingMessage(data, "append");
+      this.sendIncomingMessage(data, this.getCurrentTimeStr(), "append");
       this.updateScroll();
     });
   }
@@ -159,7 +164,7 @@ export class DashboardComponent implements OnInit {
     this.userService.saveMessage(message).subscribe(
       data => {
         console.log(data);
-        this.sendOutgoingMessage(this.msgForm.value.msg, "append");
+        this.sendOutgoingMessage(this.msgForm.value.msg, this.getCurrentTimeStr(), "append");
         this.conn.send(this.msgForm.value.msg);
         this.updateScroll();
         $("#write_msg").val("");
@@ -179,12 +184,12 @@ export class DashboardComponent implements OnInit {
         messages.forEach(message => {
           console.log(message.message);
           if (message.toUser.userId == this.user.userId) {
-            this.sendOutgoingMessage(message.message, "prepend");
+            this.sendOutgoingMessage(message.message, message.creationTime, "prepend");
           } else {
-            this.sendIncomingMessage(message.message, "prepend");
+            this.sendIncomingMessage(message.message, message.creationTime,  "prepend");
           }
         });
-        if(!isByScroll) {
+        if (!isByScroll) {
           this.updateScroll();
         }
       },
@@ -194,7 +199,7 @@ export class DashboardComponent implements OnInit {
     );
   }
 
-  sendOutgoingMessage(msg, appendType) {
+  sendOutgoingMessage(msg, timeStr, appendType) {
     let message = `<div class="out-msg-div" style="text-align: right;
     margin: 0px 20px 10px 20px;">
     <div class="out-msg-profile" style="background-color: #36bbe0;
@@ -205,7 +210,10 @@ export class DashboardComponent implements OnInit {
     border-radius: 20px;
     margin: 5px 5px 5px 5px;  
     display: inline-block;">
-      You:
+      You: <div style=" font-size: 11px; font-weight: normal;
+      color: black;">
+      ${timeStr}
+      </div>
     </div>
     <div class="out-msg" style="font-size: 13px;
     background-color: #05728f;
@@ -214,6 +222,8 @@ export class DashboardComponent implements OnInit {
     display: inline-block;
     color: white;">
       ${msg} </div>
+      
+      
     </div>`;
     if (appendType == "append") {
       $("#msgHistory").append(message);
@@ -222,7 +232,7 @@ export class DashboardComponent implements OnInit {
     }
   }
 
-  sendIncomingMessage(msg, appendType) {
+  sendIncomingMessage(msg, timeStr, appendType) {
     let message = `<div class="inc-msg-div" style="margin-bottom: 10px;
     margin: 0px 20px 10px 20px;">
     <div class="inc-msg-profile" style="background-color: #36bbe0;
@@ -232,7 +242,10 @@ export class DashboardComponent implements OnInit {
     padding: 4px 10px 4px 15px;
     border-radius: 20px;
     margin: 5px 5px 5px 5px;
-    display: inline-block;">Remote Peer: </div>
+    display: inline-block;">Remote Peer: <div style=" font-size: 11px; font-weight: normal;
+    color: black;">
+    ${timeStr}
+    </div></div>
     <div class="inc-msg" style=" font-size: 13px;
     background-color: #dfdede;
   
@@ -241,7 +254,9 @@ export class DashboardComponent implements OnInit {
     display: inline-block;
     color: black;">
       ${msg}
-    </div>
+      
+      </div>
+      
   </div>`;
     if (appendType == "append") {
       $("#msgHistory").append(message);
@@ -374,9 +389,15 @@ export class DashboardComponent implements OnInit {
       console.log("got private response: " + res);
       console.log(res);
       if (JSON.parse(res.body).messageType == "online") {
-        $(`#${JSON.parse(res.body).userId}-online`).css("display", "block");
+        $(`.${JSON.parse(res.body).userId}-online`).each(function () {
+          $(this).css("display", "inline-block");
+        });
+        // $(`.${JSON.parse(res.body).userId}-online`).css("display", "block");
       } else {
-        $(`#${JSON.parse(res.body).userId}-online`).css("display", "none");
+        $(`.${JSON.parse(res.body).userId}-online`).each(function () {
+          $(this).css("display", "none");
+        });
+        // $(`.${JSON.parse(res.body).userId}-online`).css("display", "none");
       }
     });
   }
@@ -384,7 +405,10 @@ export class DashboardComponent implements OnInit {
   public sendLoginMessage() {
     this.friends.forEach(element => {
       if (element.online) {
-        $(`#${element.userId}-online`).css("display", "block");
+        $(`.${element.userId}-online`).each(function () {
+          $(this).css("display", "inline-block");
+        });
+        // $(`.${element.userId}-online`).css("display", "block");
         this.stompClient.send(
           "/user/" + element.userId + "/queue/private",
           {},
