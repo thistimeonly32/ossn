@@ -33,6 +33,9 @@ export class DashboardComponent implements OnInit {
   @ViewChild("localVideo") localVideo: any;
   @ViewChild("remoteVideo") remoteVideo: any;
 
+  @ViewChild("remoteAudio") remoteAudio: any;
+  @ViewChild("localAudio") localAudio: any;
+
   msgHistory;
   msgForm: FormGroup;
   mediaStreamConstraints = {
@@ -61,7 +64,6 @@ export class DashboardComponent implements OnInit {
     this.getUserFriends();
 
     $("#myModal").on("hidden.bs.modal", () => {
-      // this.closeCall();
       if (this.call) {
         this.call.close();
       } else {
@@ -71,17 +73,18 @@ export class DashboardComponent implements OnInit {
       this.remoteCall = null;
     });
 
+    $("#audioCallModal").on("hidden.bs.modal", () => {
+      if (this.call) {
+        this.call.close();
+      } else {
+        this.remoteCall.close();
+      }
+      this.call = null;
+      this.remoteCall = null;
+    });
     $('[data-toggle="tooltip"]').tooltip();
-
-    // let element: any = document.getElementById('localVideo');
-    // element.muted = "muted";
     this.localVideo.nativeElement.muted = "muted";
-
-    // $('#write_msg').keypress(function (e) {
-    //   console.log("here");
-    //   if (e.keyCode == 13)
-    //     $('#msg_send_btn').click();
-    // });
+    this.localAudio.nativeElement.muted = "muted";
   }
 
   prepareMessagePage() {
@@ -91,7 +94,7 @@ export class DashboardComponent implements OnInit {
     this.messagePage.currentPage = 0;
   }
 
-  getCurrentTimeStr(){
+  getCurrentTimeStr() {
     const date = new Date();
     return `${("0" + date.getDate()).slice(-2)}-${("0" + (date.getMonth() + 1)).slice(-2)}-${date.getFullYear()} ${("0" + date.getHours()).slice(-2)}:${("0" + date.getMinutes()).slice(-2)}`;
   }
@@ -106,8 +109,10 @@ export class DashboardComponent implements OnInit {
     this.localStream.getTracks().forEach(function (track) {
       track.stop();
     });
-    this.localVideo.nativeElement.srcObject = null;
-    this.remoteVideo.nativeElementsrcObject = null;
+    !this.localVideo ? this.localVideo.nativeElement.srcObject = null : '';
+    !this.remoteVideo ? this.remoteVideo.nativeElementsrcObject = null : '';
+    !this.localAudio ? this.localAudio.nativeElement.srcObject = null : '';
+    !this.remoteAudio ? this.remoteAudio.nativeElementsrcObject = null : '';
   }
 
   preparePeerConnection() {
@@ -130,8 +135,14 @@ export class DashboardComponent implements OnInit {
 
     this.peer.on("call", call => {
       console.log("Call recieved from remote peer", call);
+      console.log(call.metadata);
       this.remoteCall = call;
-      this.getLocalVideoForAnswer();
+
+      if (this.remoteCall.metadata.callType == 'video') {
+        this.getLocalVideoForAnswer();
+      } else {
+        this.getLocalAudioForAnswer();
+      }
     });
   }
 
@@ -186,7 +197,7 @@ export class DashboardComponent implements OnInit {
           if (message.toUser.userId == this.user.userId) {
             this.sendOutgoingMessage(message.message, message.creationTime, "prepend");
           } else {
-            this.sendIncomingMessage(message.message, message.creationTime,  "prepend");
+            this.sendIncomingMessage(message.message, message.creationTime, "prepend");
           }
         });
         if (!isByScroll) {
@@ -299,7 +310,7 @@ export class DashboardComponent implements OnInit {
         this.localVideo.nativeElement.srcObject = stream;
         this.call = this.peer.call(
           "user-peer-id-" + remotePeerId,
-          this.localStream
+          this.localStream, { metadata: { callType: 'video' } }
         );
         this.call.on("stream", remoteStream => {
           this.remoteVideo.nativeElement.srcObject = remoteStream;
@@ -329,6 +340,54 @@ export class DashboardComponent implements OnInit {
         this.remoteCall.on("close", () => {
           this.closeCall();
           $("#myModal").modal("hide");
+        });
+      })
+      .catch(e => console.error(e));
+  }
+
+  connectAudioCall(remotePeerId) {
+    this.getLocalAudioForOffer(remotePeerId);
+  }
+
+  getLocalAudioForOffer(remotePeerId) {
+    navigator.mediaDevices
+      .getUserMedia({
+        audio: true
+      })
+      .then(stream => {
+        this.localStream = stream;
+        this.localAudio.nativeElement.srcObject = stream;
+        this.call = this.peer.call(
+          "user-peer-id-" + remotePeerId,
+          this.localStream, { metadata: { callType: 'audio' } }
+        );
+        this.call.on("stream", remoteStream => {
+          this.remoteAudio.nativeElement.srcObject = remoteStream;
+        });
+        this.call.on("close", () => {
+          this.closeCall();
+          $("#audioCallModal").modal("hide");
+        });
+      })
+      .catch(e => console.error(e));
+  }
+
+  getLocalAudioForAnswer() {
+    navigator.mediaDevices
+      .getUserMedia({
+        audio: true
+      })
+      .then(stream => {
+        this.localStream = stream;
+        $("#audioCallModal").modal({ backdrop: "static", keyboard: false });
+        this.localAudio.nativeElement.srcObject = this.localStream;
+        this.remoteCall.answer(this.localStream);
+        this.remoteCall.on("stream", remoteStream => {
+          this.remoteAudio.nativeElement.srcObject = remoteStream;
+        });
+        this.remoteCall.on("close", () => {
+          this.closeCall();
+          $("#audioCallModal").modal("hide");
         });
       })
       .catch(e => console.error(e));
